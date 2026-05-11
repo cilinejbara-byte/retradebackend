@@ -22,12 +22,14 @@ WORKDIR /var/www/html
 COPY . .
 
 # إعداد الصلاحيات
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # تثبيت الحزم باستخدام Composer
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
+RUN sed -i 's/html/html\/public/g' /etc/apache2/sites-available/000-default.conf
+RUN a2enmod rewrite
 # نسخ .env وتوليد APP_KEY
 RUN cp .env.example .env \
     && php artisan key:generate
@@ -49,3 +51,4 @@ EXPOSE 80
 # بدء Laravel باستخدام السيرفر الداخلي
 #CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=80"]
 CMD ["apache2-foreground"]
+CMD touch database/database.sqlite && chmod 777 database/database.sqlite && php artisan migrate --force && apache2-foreground
