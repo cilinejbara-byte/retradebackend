@@ -23,7 +23,7 @@ class ChatBotController extends Controller
         $apiKey = config('services.openrouter.key') ?? env('OPENROUTER_API_KEY');
         try {
             // لصق المفتاح الجديد مباشرة هنا بين علامات الاقتباس
-            $apiKey = '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'; 
+            $apiKey = config('services.openrouter.key'); 
 
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $apiKey,
