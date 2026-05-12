@@ -28,4 +28,6 @@ EXPOSE 80
 
 # 8. أمر التشغيل النهائي (إنشاء قاعدة البيانات + تنفيذ الجداول + تشغيل Apache)
 # تم دمج كل شيء في أمر واحد لضمان عدم حدوث تعارض
+# امسحي آخر 4 أسطر في ملف Dockerfile وضعي هذا السطر مكانهما:
 CMD bash -c "touch database/database.sqlite && chmod 777 database/database.sqlite && php artisan migrate --force && php artisan db:seed --class=CategoriesTableSeeder --force && apache2-foreground"
+
