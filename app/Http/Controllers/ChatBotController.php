@@ -19,30 +19,33 @@ class ChatBotController extends Controller
 
         $apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
         
-        // جلب المفتاح بشكل آمن، وإذا لم يجده في الإعدادات سيجربه من الـ env كخطة بديلة
-        $apiKey = config('services.openrouter.key') ?? env('OPENROUTER_API_KEY');
         try {
-            // لصق المفتاح الجديد مباشرة هنا بين علامات الاقتباس
-            $apiKey = config('services.openrouter.key'); 
+            // جلب المفتاح من ملف الـ env مباشرة لتفادي التعقيد
+            $apiKey = env('OPENROUTER_API_KEY');
+
+            // التحقق محلياً قبل إرسال الطلب للتأكد من قراءة المفتاح بنجاح
+            if (!$apiKey) {
+                return response()->json([
+                    'reply' => 'خطأ في السيرفر: مفتاح OPENROUTER_API_KEY غير معرف في ملف الـ env.'
+                ], 500);
+            }
 
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $apiKey,
                 'Content-Type' => 'application/json',
             ])->post($apiUrl, [
-            
                 'model' => 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
                 'messages' => [
                     ['role' => 'user', 'content' => $userMessage]
                 ],
             ]);
 
-
-
             // 2. التحقق من نجاح الاتصال بـ OpenRouter أولاً
             if ($response->failed()) {
                 Log::error('OpenRouter Error: ' . $response->body());
+                // إرجاع تفاصيل الخطأ القادم من OpenRouter مباشرة للمساعدة في التشخيص
                 return response()->json([
-                    'reply' => 'خطأ من مزود الذكاء الاصطناعي: السيرفر الخارجي لم يقبل الطلب.'
+                    'reply' => 'خطأ من OpenRouter: ' . $response->body()
                 ], 500);
             }
 
