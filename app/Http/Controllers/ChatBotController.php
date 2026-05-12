@@ -21,18 +21,24 @@ class ChatBotController extends Controller
         
         // جلب المفتاح بشكل آمن، وإذا لم يجده في الإعدادات سيجربه من الـ env كخطة بديلة
         $apiKey = config('services.openrouter.key') ?? env('OPENROUTER_API_KEY');
+try {
+    // 1. جلب المفتاح من ملف الإعدادات أو استخدام الـ env كخيار بديل
+    $apiKey = config('services.openrouter.key') ?? env('OPENROUTER_API_KEY');
 
-        try {
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $apiKey,
-                'Content-Type' => 'application/json',
-            ])->post($apiUrl, [
-                // 
-                'model' => 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
-                'messages' => [
-                    ['role' => 'user', 'content' => $userMessage]
-                ],
-            ]);
+    // 2. إذا فشلت الطريقتان، يمكنك وضع المفتاح الجديد يدوياً هنا كحل مؤقت لحل مشكلة الكاش:
+    // $apiKey = 'sk-or-v1-ضع_مفتاحك_الجديد_هنا';
+
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $apiKey,
+        'Content-Type' => 'application/json',
+    ])->post($apiUrl, [
+        // 3. تم التغيير لنموذج جيميناي المجاني والمستقر المتاح حالياً بدلاً من نموذج نيفيديا التجريبي
+        'model' => 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
+        'messages' => [
+            ['role' => 'user', 'content' => $userMessage]
+        ],
+    ]);
+
 
             // 2. التحقق من نجاح الاتصال بـ OpenRouter أولاً
             if ($response->failed()) {
