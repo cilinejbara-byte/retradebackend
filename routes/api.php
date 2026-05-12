@@ -45,3 +45,10 @@ Route::middleware('auth.api:sanctum')->group(function () {
 });
 
 Route::middleware('auth.api:sanctum')->get('/user/liked-products', [ProductController::class, 'likedProducts']);
+
+
+Route::get('/clear-cache', function () {
+    Artisan::call('config:clear');
+    Artisan::call('cache:clear');
+    return response()->json(['message' => 'تم تنظيف الكاش بنجاح على السيرفر!']);
+});
