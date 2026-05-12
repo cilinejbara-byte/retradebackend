@@ -18,7 +18,11 @@ RUN composer install --no-interaction --prefer-dist --optimize-autoloader \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # 5. ضبط Apache (بدون تحميل موديولات إضافية تسبب تعارض)
+# 5. ضبط Apache وتعطيل الموديولات المتعارضة (حل مشكلة More than one MPM loaded)
 RUN sed -i 's/html/html\/public/g' /etc/apache2/sites-available/000-default.conf \
+    && a2dismod mpm_event || true \
+    && a2dismod mpm_worker || true \
+    && a2enmod mpm_prefork \
     && a2enmod rewrite
 
 # 6. أمر التشغيل المدمج (يمنع تكرار MPM)
